@@ -7,35 +7,15 @@ const getWords = (value, arr) => {
   return arr[parseInt(value - 1)];
 };
 
-// const splitNumber = (inputNumber) => {
-//   const numberString = String(inputNumber);
-//   const chunks = [];
-//   for (let i = 0; i < numberString.length; i += 3) {
-//     chunks.push(numberString.slice(i, i + 3));
-//   }
-//   return chunks;
-// };
-
-const splitNumber = (inputNumber) => {
-  // Converte o número para uma string
-  const numberString = inputNumber.toString();
-
-  // Inicializa um array para armazenar os chunks de dígitos
+const splitNumberIntoClasses = (inputNumber) => {
+  const numberString = String(inputNumber);
   const chunks = [];
-
-  // Inverte a string para facilitar a iteração da direita para a esquerda
   const reverseNumber = numberString.split('').reverse().join('');
-
-  // Divide a string em chunks de 3 dígitos
   for (let i = 0; i < reverseNumber.length; i += 3) {
     const group = reverseNumber.slice(i, i + 3);
     chunks.push(group.split('').reverse().join(''));
   }
-
-  // Inverte novamente para obter a ordem correta
-  const result = chunks.reverse();
-
-  return result;
+  return chunks.reverse();
 };
 
 const valueToWords = (inputValue) => {
@@ -44,6 +24,8 @@ const valueToWords = (inputValue) => {
   const parts = stringValue.split('.');
   const integerValue = parts[0];
   const decimalValue = parts[1]?.length === 1 ? String(parts[1] * 10) : parts[1] || '00';
+  const currencyName = parseInt(integerValue) === 1 ? 'real' : 'reais';
+  const fractionName = parseInt(decimalValue) === 1 ? 'centavo' : 'centavos';
 
   const convertToWords = (charArray) => {
     if (charArray.length === 3) {
@@ -73,17 +55,28 @@ const valueToWords = (inputValue) => {
     }
   };
 
-  const teste = splitNumber(integerValue);
-  console.log(teste);
+  // Convert Integer part to words
+  const integerIntoClasses = splitNumberIntoClasses(integerValue);
 
-  const charIntegerArray = [...integerValue];
+  for (let i = 0; i < integerIntoClasses.length; i++) {
+    const charIntegerArray = [...integerIntoClasses[i]];
+    convertToWords(charIntegerArray);
+  }
 
-  const charDecimalArray = [...decimalValue];
+  result.push(currencyName);
 
-  convertToWords(charIntegerArray);
+  // Convert Decimal part to words
+  const decimalIntoClasses = splitNumberIntoClasses(decimalValue);
+
+  for (let i = 0; i < decimalIntoClasses.length; i++) {
+    const charDecimalArray = [...decimalIntoClasses[i]];
+    convertToWords(charDecimalArray);
+  }
+
+  result.push(fractionName);
 
   return result.filter((res) => res);
 };
 
-const inputValue = 65941.08;
+const inputValue = 100.81;
 console.log(valueToWords(inputValue));
