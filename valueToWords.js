@@ -57,27 +57,28 @@ const valueToWords = (inputValue) => {
   };
 
   // Convert Integer part to words
-  const integerIntoClasses = splitNumberIntoClasses(integerValue);
 
-  for (let i = 0; i < integerIntoClasses.length; i++) {
-    const charIntegerArray = [...integerIntoClasses[i]];
-    convertToWords(charIntegerArray);
+  if (parseInt(integerValue) > 0) {
+    const integerIntoClasses = splitNumberIntoClasses(integerValue);
+
+    for (let i = 0; i < integerIntoClasses.length; i++) {
+      const charIntegerArray = [...integerIntoClasses[i]];
+      convertToWords(charIntegerArray);
+    }
+
+    result.push(currencyName);
   }
-
-  if (parseInt(integerValue) > 0) result.push(currencyName);
 
   // Convert Decimal part to words
-  const decimalIntoClasses = splitNumberIntoClasses(decimalValue);
 
-  for (let i = 0; i < decimalIntoClasses.length; i++) {
-    const charDecimalArray = [...decimalIntoClasses[i]];
+  if (parseInt(decimalValue) > 0) {
+    const charDecimalArray = [...decimalValue];
     convertToWords(charDecimalArray);
+    result.push(fractionName);
   }
-
-  if (parseInt(decimalValue) > 0) result.push(fractionName);
 
   return result.filter((res) => res);
 };
 
-const inputValue = 0.54;
+const inputValue = 46;
 console.log(valueToWords(inputValue));
