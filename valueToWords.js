@@ -1,4 +1,8 @@
 const valueToWords = (inputValue) => {
+  if (inputValue >= 999999999999999.99) {
+    return 'ERRO. O número fornecido é grande demais para ser convertido por extenso.';
+  }
+
   const units = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
   const teens = ['onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
   const tens = ['dez', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
@@ -60,10 +64,28 @@ const valueToWords = (inputValue) => {
 
   if (parseInt(integerValue) > 0) {
     const integerIntoClasses = splitNumberIntoClasses(integerValue);
+    let orderClass = integerIntoClasses.length;
+
+    const getNumberClass = (value, orderClass) => {
+      if (value != 0) {
+        const classes = {
+          2: 'mil',
+          3: value == 1 ? 'milhão' : 'milhões',
+          4: value == 1 ? 'bilhão' : 'bilhões',
+          5: value == 1 ? 'trilhão' : 'trilhões',
+        };
+        return classes[orderClass] || null;
+      }
+      return null;
+    };
 
     for (let i = 0; i < integerIntoClasses.length; i++) {
       const charIntegerArray = [...integerIntoClasses[i]];
       convertToWords(charIntegerArray);
+
+      const numberClass = getNumberClass(integerIntoClasses[i], orderClass);
+      result.push(numberClass);
+      orderClass--;
     }
 
     result.push(currencyName);
@@ -80,5 +102,5 @@ const valueToWords = (inputValue) => {
   return result.filter((res) => res);
 };
 
-const inputValue = 46;
+const inputValue = 99999.9;
 console.log(valueToWords(inputValue));
