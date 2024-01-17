@@ -79,6 +79,16 @@ const valueToWords = (inputValue) => {
       return null;
     };
 
+    const includeComma = (numberClass, nextInteger) => {
+      if (numberClass && ((numberClass === 'mil' && nextInteger > 100) || (numberClass !== 'mil' && nextInteger != 0))) {
+        result.push(',');
+      } else if (numberClass && numberClass !== 'mil' && nextInteger == 0) {
+        result.push('de');
+      } else if (numberClass === 'mil' && nextInteger != 0) {
+        result.push('e');
+      }
+    };
+
     for (let i = 0; i < integerIntoClasses.length; i++) {
       const charIntegerArray = [...integerIntoClasses[i]];
       convertToWords(charIntegerArray);
@@ -86,6 +96,8 @@ const valueToWords = (inputValue) => {
       const numberClass = getNumberClass(integerIntoClasses[i], orderClass);
       result.push(numberClass);
       orderClass--;
+
+      includeComma(numberClass, integerIntoClasses[i + 1]);
     }
 
     result.push(currencyName);
@@ -94,6 +106,7 @@ const valueToWords = (inputValue) => {
   // Convert Decimal part to words
 
   if (parseInt(decimalValue) > 0) {
+    result.push('e');
     const charDecimalArray = [...decimalValue];
     convertToWords(charDecimalArray);
     result.push(fractionName);
@@ -102,5 +115,5 @@ const valueToWords = (inputValue) => {
   return result.filter((res) => res);
 };
 
-const inputValue = 99999.9;
+const inputValue = 8012;
 console.log(valueToWords(inputValue));
