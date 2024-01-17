@@ -1,24 +1,9 @@
-const unitsAndTens = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
-const units = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
-const tens = ['dez', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
-const hundreds = ['cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
-
-const getWords = (value, arr) => {
-  return arr[parseInt(value - 1)];
-};
-
-const splitNumberIntoClasses = (inputNumber) => {
-  const numberString = String(inputNumber);
-  const chunks = [];
-  const reverseNumber = numberString.split('').reverse().join('');
-  for (let i = 0; i < reverseNumber.length; i += 3) {
-    const group = reverseNumber.slice(i, i + 3);
-    chunks.push(group.split('').reverse().join(''));
-  }
-  return chunks.reverse();
-};
-
 const valueToWords = (inputValue) => {
+  const units = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
+  const teens = ['onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
+  const tens = ['dez', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
+  const hundreds = ['cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
+
   const result = [];
   const stringValue = String(inputValue);
   const parts = stringValue.split('.');
@@ -27,6 +12,22 @@ const valueToWords = (inputValue) => {
   const currencyName = parseInt(integerValue) === 1 ? 'real' : 'reais';
   const fractionName = parseInt(decimalValue) === 1 ? 'centavo' : 'centavos';
 
+  const getWords = (value, arr) => {
+    const indexDeducted = arr === teens ? 11 : 1;
+    return arr[parseInt(value - indexDeducted)];
+  };
+
+  const splitNumberIntoClasses = (inputNumber) => {
+    const numberString = String(inputNumber);
+    const chunks = [];
+    const reverseNumber = numberString.split('').reverse().join('');
+    for (let i = 0; i < reverseNumber.length; i += 3) {
+      const group = reverseNumber.slice(i, i + 3);
+      chunks.push(group.split('').reverse().join(''));
+    }
+    return chunks.reverse();
+  };
+
   const convertToWords = (charArray) => {
     if (charArray.length === 3) {
       if (parseInt(charArray.join('')) === 100) {
@@ -34,8 +35,8 @@ const valueToWords = (inputValue) => {
       } else {
         result.push(getWords(charArray[0], hundreds));
         charArray.shift();
-        if (parseInt(charArray.join('')) <= 19) {
-          result.push(getWords(charArray.join(''), unitsAndTens));
+        if (parseInt(charArray.join('')) > 10 && parseInt(charArray.join('')) <= 19) {
+          result.push(getWords(charArray.join(''), teens));
         } else {
           result.push(getWords(charArray[0], tens));
           charArray.shift();
@@ -43,8 +44,8 @@ const valueToWords = (inputValue) => {
         }
       }
     } else if (charArray.length === 2) {
-      if (parseInt(charArray.join('')) <= 19) {
-        result.push(getWords(charArray.join(''), unitsAndTens));
+      if (parseInt(charArray.join('')) > 10 && parseInt(charArray.join('')) <= 19) {
+        result.push(getWords(charArray.join(''), teens));
       } else {
         result.push(getWords(charArray[0], tens));
         charArray.shift();
@@ -63,7 +64,7 @@ const valueToWords = (inputValue) => {
     convertToWords(charIntegerArray);
   }
 
-  result.push(currencyName);
+  if (parseInt(integerValue) > 0) result.push(currencyName);
 
   // Convert Decimal part to words
   const decimalIntoClasses = splitNumberIntoClasses(decimalValue);
@@ -73,10 +74,10 @@ const valueToWords = (inputValue) => {
     convertToWords(charDecimalArray);
   }
 
-  result.push(fractionName);
+  if (parseInt(decimalValue) > 0) result.push(fractionName);
 
   return result.filter((res) => res);
 };
 
-const inputValue = 100.81;
+const inputValue = 0.54;
 console.log(valueToWords(inputValue));
