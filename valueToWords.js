@@ -13,12 +13,66 @@ const valueToWords = (inputValue) => {
   const parts = stringValue.split('.');
   const integerValue = parts[0];
   const decimalValue = parts[1]?.length === 1 ? String(parts[1] * 10) : parts[1] || '00';
-  const currencyName = parseInt(integerValue) === 1 ? 'real' : 'reais';
-  const fractionName = parseInt(decimalValue) === 1 ? 'centavo' : 'centavos';
+  const currencyName = integerValue == 1 ? 'real' : 'reais';
+  const fractionName = decimalValue == 1 ? 'centavo' : 'centavos';
 
   const getWords = (value, arr) => {
     const indexDeducted = arr === teens ? 11 : 1;
-    return arr[parseInt(value - indexDeducted)];
+    return arr[value - indexDeducted];
+  };
+
+  const insertCharacterBetweenWords = (words, character) => {
+    return words.flatMap((word, index) => (index < words.length - 1 ? [word, character] : [word]));
+  };
+
+  const convertNumberToWords = (numArray) => {
+    const words = [];
+    const digits = numArray.length;
+    const firstDigit = numArray[0];
+    const middleDigit = numArray[1];
+    const lastDigit = numArray[digits - 1];
+    const lastTwoDigits = numArray.slice(-2).join('');
+
+    if (digits === 3) {
+      if (numArray.join('') == 100) {
+        words.push('cem');
+      } else {
+        words.push(getWords(firstDigit, hundreds));
+        if (lastTwoDigits > 0 && lastTwoDigits < 10) {
+          words.push(getWords(lastDigit, units));
+        } else if (lastTwoDigits == 10) {
+          words.push(getWords(middleDigit, tens));
+        } else if (lastTwoDigits > 10 && lastTwoDigits <= 19) {
+          words.push(getWords(lastTwoDigits, teens));
+        } else if (lastTwoDigits > 19) {
+          words.push(getWords(middleDigit, tens));
+          if (lastDigit != 0) {
+            words.push(getWords(lastDigit, units));
+          }
+        }
+      }
+    }
+
+    if (digits === 2) {
+      if (lastTwoDigits == 10) {
+        words.push(getWords(firstDigit, tens));
+      } else if (lastTwoDigits > 10 && lastTwoDigits <= 19) {
+        words.push(getWords(lastTwoDigits, teens));
+      } else if (lastTwoDigits > 19) {
+        words.push(getWords(firstDigit, tens));
+        if (lastDigit != 0) {
+          words.push(getWords(lastDigit, units));
+        }
+      }
+    }
+
+    if (digits === 1) {
+      words.push(getWords(lastDigit, units));
+    }
+
+    const wordsSanitized = words.filter((word) => word);
+    const resultWords = insertCharacterBetweenWords(wordsSanitized, 'e');
+    return resultWords;
   };
 
   const splitNumberIntoClasses = (inputNumber) => {
@@ -30,34 +84,6 @@ const valueToWords = (inputValue) => {
       chunks.push(group.split('').reverse().join(''));
     }
     return chunks.reverse();
-  };
-
-  const convertToWords = (charArray) => {
-    if (charArray.length === 3) {
-      if (parseInt(charArray.join('')) === 100) {
-        result.push('cem');
-      } else {
-        result.push(getWords(charArray[0], hundreds));
-        charArray.shift();
-        if (parseInt(charArray.join('')) > 10 && parseInt(charArray.join('')) <= 19) {
-          result.push(getWords(charArray.join(''), teens));
-        } else {
-          result.push(getWords(charArray[0], tens));
-          charArray.shift();
-          result.push(getWords(charArray[0], units));
-        }
-      }
-    } else if (charArray.length === 2) {
-      if (parseInt(charArray.join('')) > 10 && parseInt(charArray.join('')) <= 19) {
-        result.push(getWords(charArray.join(''), teens));
-      } else {
-        result.push(getWords(charArray[0], tens));
-        charArray.shift();
-        result.push(getWords(charArray[0], units));
-      }
-    } else if (charArray.length === 1) {
-      result.push(getWords(charArray[0], units));
-    }
   };
 
   // Convert Integer part to words
@@ -83,7 +109,7 @@ const valueToWords = (inputValue) => {
       if (numberClass && ((numberClass === 'mil' && nextInteger > 100) || (numberClass !== 'mil' && nextInteger != 0))) {
         result.push(',');
       } else if (numberClass && numberClass !== 'mil' && nextInteger == 0) {
-        result.push('de');
+        result.push('de'); // Erro ao testar com o número 32000064.89;
       } else if (numberClass === 'mil' && nextInteger != 0) {
         result.push('e');
       }
@@ -91,7 +117,8 @@ const valueToWords = (inputValue) => {
 
     for (let i = 0; i < integerIntoClasses.length; i++) {
       const charIntegerArray = [...integerIntoClasses[i]];
-      convertToWords(charIntegerArray);
+      const wordsIntegerArray = convertNumberToWords(charIntegerArray);
+      result.push(...wordsIntegerArray);
 
       const numberClass = getNumberClass(integerIntoClasses[i], orderClass);
       result.push(numberClass);
@@ -106,14 +133,22 @@ const valueToWords = (inputValue) => {
   // Convert Decimal part to words
 
   if (parseInt(decimalValue) > 0) {
-    result.push('e');
+    if (parseInt(integerValue) > 0) result.push('e');
     const charDecimalArray = [...decimalValue];
-    convertToWords(charDecimalArray);
+    const wordsDecimalArray = convertNumberToWords(charDecimalArray);
+    result.push(...wordsDecimalArray);
+
     result.push(fractionName);
   }
 
-  return result.filter((res) => res);
+  const resultFiltered = result.filter((res) => res);
+  const valueInFull = resultFiltered
+    .map((word) => (word === ',' ? ',' : ` ${word}`))
+    .join('')
+    .trim();
+
+  return valueInFull;
 };
 
-const inputValue = 8012;
+const inputValue = 32000064.89;
 console.log(valueToWords(inputValue));
