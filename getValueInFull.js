@@ -1,6 +1,19 @@
 const getValueInFull = (inputValue) => {
-  if (inputValue > 999999999999999) {
-    return 'ERRO. O número fornecido é grande demais para ser convertido por extenso.';
+  const validation = [
+    {
+      test: typeof inputValue !== 'number',
+      msg: 'ERRO: O valor fornecido não é um número válido.',
+    },
+    {
+      test: inputValue > 999999999999999,
+      msg: 'ERRO: O valor fornecido é grande demais para ser convertido por extenso.',
+    },
+  ];
+
+  const errorValidation = validation.find((check) => check.test);
+
+  if (errorValidation) {
+    return errorValidation.msg;
   }
 
   const units = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
@@ -9,10 +22,9 @@ const getValueInFull = (inputValue) => {
   const hundreds = ['cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
 
   const result = [];
-  const stringValue = String(inputValue);
+  const stringValue = String(inputValue.toFixed(2));
   const parts = stringValue.split('.');
-  const integerValue = parts[0];
-  const decimalValue = parts[1]?.length === 1 ? String(parts[1] * 10) : parts[1] || '00';
+  const [integerValue, decimalValue] = parts;
   const currencyName = integerValue == 1 ? 'real' : 'reais';
   const fractionName = decimalValue == 1 ? 'centavo' : 'centavos';
 
@@ -77,7 +89,7 @@ const getValueInFull = (inputValue) => {
     return resultWords;
   };
 
-  // Convert Integer part to words
+  // GET INTEGER PART IN FULL
 
   if (integerValue > 0) {
     const splitNumberIntoClasses = (inputNumber) => {
@@ -101,7 +113,7 @@ const getValueInFull = (inputValue) => {
       return value != 0 ? classes[orderClass] : null;
     };
 
-    const insertSeparatorsAfterWords = (numberClassName, integerRemainder) => {
+    const insertSeparatorsAfterClasses = (numberClassName, integerRemainder) => {
       if (numberClassName && ((numberClassName === 'mil' && integerRemainder > 100) || (numberClassName !== 'mil' && integerRemainder != 0))) {
         result.push(',');
       } else if (numberClassName && numberClassName !== 'mil' && integerRemainder == 0) {
@@ -125,13 +137,13 @@ const getValueInFull = (inputValue) => {
 
       const integerRemainder = integerSplitIntoClasses.slice(i + 1).join('');
 
-      insertSeparatorsAfterWords(numberClassName, integerRemainder);
+      insertSeparatorsAfterClasses(numberClassName, integerRemainder);
     }
 
     result.push(currencyName);
   }
 
-  // Convert Decimal part to words
+  // GET FRACTIONAL PART IN FULL
 
   if (parseInt(decimalValue) > 0) {
     if (integerValue > 0) result.push('e');
@@ -148,9 +160,14 @@ const getValueInFull = (inputValue) => {
     .join('')
     .trim();
 
-  return valueInFull || 'ERRO. Não foi possível converter o valor fornecido por extenso.';
+  return valueInFull;
 };
 
-// 999999999999999
-const inputValue = 999999999;
-console.log(getValueInFull(inputValue));
+const inputValue = 7100;
+
+const convertedNumber = {
+  valor: inputValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+  porExtenso: getValueInFull(inputValue),
+};
+
+console.log(convertedNumber);
