@@ -114,7 +114,7 @@ const getValueInFull = (inputValue) => {
     };
 
     const insertSeparatorsAfterClasses = (numberClassName, integerRemainder) => {
-      if (numberClassName && ((numberClassName === 'mil' && integerRemainder > 100) || (numberClassName !== 'mil' && integerRemainder != 0))) {
+      if (numberClassName && ((numberClassName === 'mil' && integerRemainder > 100 && integerRemainder % 100 !== 0) || (numberClassName !== 'mil' && integerRemainder != 0))) {
         result.push(',');
       } else if (numberClassName && numberClassName !== 'mil' && integerRemainder == 0) {
         result.push('de');
@@ -163,7 +163,9 @@ const getValueInFull = (inputValue) => {
   return valueInFull;
 };
 
-const inputValue = 7100;
+const inputValue = 4000034;
+// Retornando: 'quatro milhões, trinta e quatro reais'
+// Esperado:   'quatro milhões e trinta e quatro reais'
 
 const convertedNumber = {
   valor: inputValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
