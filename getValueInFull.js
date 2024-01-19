@@ -1,5 +1,5 @@
-const valueToWords = (inputValue) => {
-  if (inputValue >= 999999999999999.99) {
+const getValueInFull = (inputValue) => {
+  if (inputValue > 999999999999999) {
     return 'ERRO. O número fornecido é grande demais para ser convertido por extenso.';
   }
 
@@ -16,13 +16,13 @@ const valueToWords = (inputValue) => {
   const currencyName = integerValue == 1 ? 'real' : 'reais';
   const fractionName = decimalValue == 1 ? 'centavo' : 'centavos';
 
+  const insertCharacterBetweenWords = (words, character) => {
+    return words.flatMap((word, index) => (index < words.length - 1 ? [word, character] : [word]));
+  };
+
   const getWords = (value, arr) => {
     const indexDeducted = arr === teens ? 11 : 1;
     return arr[value - indexDeducted];
-  };
-
-  const insertCharacterBetweenWords = (words, character) => {
-    return words.flatMap((word, index) => (index < words.length - 1 ? [word, character] : [word]));
   };
 
   const convertNumberToWords = (numArray) => {
@@ -54,7 +54,9 @@ const valueToWords = (inputValue) => {
     }
 
     if (digits === 2) {
-      if (lastTwoDigits == 10) {
+      if (lastTwoDigits > 0 && lastTwoDigits < 10) {
+        words.push(getWords(lastDigit, units));
+      } else if (lastTwoDigits == 10) {
         words.push(getWords(firstDigit, tens));
       } else if (lastTwoDigits > 10 && lastTwoDigits <= 19) {
         words.push(getWords(lastTwoDigits, teens));
@@ -75,56 +77,56 @@ const valueToWords = (inputValue) => {
     return resultWords;
   };
 
-  const splitNumberIntoClasses = (inputNumber) => {
-    const numberString = String(inputNumber);
-    const chunks = [];
-    const reverseNumber = numberString.split('').reverse().join('');
-    for (let i = 0; i < reverseNumber.length; i += 3) {
-      const group = reverseNumber.slice(i, i + 3);
-      chunks.push(group.split('').reverse().join(''));
-    }
-    return chunks.reverse();
-  };
-
   // Convert Integer part to words
 
-  if (parseInt(integerValue) > 0) {
-    const integerIntoClasses = splitNumberIntoClasses(integerValue);
-    let orderClass = integerIntoClasses.length;
-
-    const getNumberClass = (value, orderClass) => {
-      if (value != 0) {
-        const classes = {
-          2: 'mil',
-          3: value == 1 ? 'milhão' : 'milhões',
-          4: value == 1 ? 'bilhão' : 'bilhões',
-          5: value == 1 ? 'trilhão' : 'trilhões',
-        };
-        return classes[orderClass] || null;
+  if (integerValue > 0) {
+    const splitNumberIntoClasses = (inputNumber) => {
+      const numberString = String(inputNumber);
+      const chunks = [];
+      const reversedNumber = numberString.split('').reverse().join('');
+      for (let i = 0; i < reversedNumber.length; i += 3) {
+        const group = reversedNumber.slice(i, i + 3);
+        chunks.push(group.split('').reverse().join(''));
       }
-      return null;
+      return chunks.reverse();
     };
 
-    const includeComma = (numberClass, nextInteger) => {
-      if (numberClass && ((numberClass === 'mil' && nextInteger > 100) || (numberClass !== 'mil' && nextInteger != 0))) {
+    const getNumberClassName = (value, orderClass) => {
+      const classes = {
+        2: 'mil',
+        3: value == 1 ? 'milhão' : 'milhões',
+        4: value == 1 ? 'bilhão' : 'bilhões',
+        5: value == 1 ? 'trilhão' : 'trilhões',
+      };
+      return value != 0 ? classes[orderClass] : null;
+    };
+
+    const insertSeparatorsAfterWords = (numberClassName, integerRemainder) => {
+      console.log('valor restante:', integerRemainder);
+      if (numberClassName && ((numberClassName === 'mil' && integerRemainder > 100) || (numberClassName !== 'mil' && integerRemainder != 0))) {
         result.push(',');
-      } else if (numberClass && numberClass !== 'mil' && nextInteger == 0) {
-        result.push('de'); // Erro ao testar com o número 32000064.89;
-      } else if (numberClass === 'mil' && nextInteger != 0) {
+      } else if (numberClassName && numberClassName !== 'mil' && integerRemainder == 0) {
+        result.push('de');
+      } else if (numberClassName === 'mil' && integerRemainder != 0) {
         result.push('e');
       }
     };
 
-    for (let i = 0; i < integerIntoClasses.length; i++) {
-      const charIntegerArray = [...integerIntoClasses[i]];
+    const integerSplitIntoClasses = splitNumberIntoClasses(integerValue);
+    let orderClass = integerSplitIntoClasses.length;
+
+    for (let i = 0; i < integerSplitIntoClasses.length; i++) {
+      const charIntegerArray = [...integerSplitIntoClasses[i]];
       const wordsIntegerArray = convertNumberToWords(charIntegerArray);
       result.push(...wordsIntegerArray);
 
-      const numberClass = getNumberClass(integerIntoClasses[i], orderClass);
-      result.push(numberClass);
+      const numberClassName = getNumberClassName(integerSplitIntoClasses[i], orderClass);
+      result.push(numberClassName);
       orderClass--;
 
-      includeComma(numberClass, integerIntoClasses[i + 1]);
+      const integerRemainder = integerSplitIntoClasses.filter((classInteger, index, arr) => arr.indexOf(classInteger) > i).join(''); // dá erro quando os valores de classInteger são todos iguais. Ex: 111.111 ou 324.324 ou 999.999
+
+      insertSeparatorsAfterWords(numberClassName, integerRemainder);
     }
 
     result.push(currencyName);
@@ -133,7 +135,7 @@ const valueToWords = (inputValue) => {
   // Convert Decimal part to words
 
   if (parseInt(decimalValue) > 0) {
-    if (parseInt(integerValue) > 0) result.push('e');
+    if (integerValue > 0) result.push('e');
     const charDecimalArray = [...decimalValue];
     const wordsDecimalArray = convertNumberToWords(charDecimalArray);
     result.push(...wordsDecimalArray);
@@ -141,14 +143,14 @@ const valueToWords = (inputValue) => {
     result.push(fractionName);
   }
 
-  const resultFiltered = result.filter((res) => res);
-  const valueInFull = resultFiltered
+  const resultSanitized = result.filter((res) => res);
+  const valueInFull = resultSanitized
     .map((word) => (word === ',' ? ',' : ` ${word}`))
     .join('')
     .trim();
 
   return valueInFull;
 };
-
-const inputValue = 32000064.89;
-console.log(valueToWords(inputValue));
+// 999999999999999
+const inputValue = 112112;
+console.log(getValueInFull(inputValue));
