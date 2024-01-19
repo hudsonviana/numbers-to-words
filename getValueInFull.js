@@ -102,7 +102,6 @@ const getValueInFull = (inputValue) => {
     };
 
     const insertSeparatorsAfterWords = (numberClassName, integerRemainder) => {
-      console.log('valor restante:', integerRemainder);
       if (numberClassName && ((numberClassName === 'mil' && integerRemainder > 100) || (numberClassName !== 'mil' && integerRemainder != 0))) {
         result.push(',');
       } else if (numberClassName && numberClassName !== 'mil' && integerRemainder == 0) {
@@ -124,7 +123,7 @@ const getValueInFull = (inputValue) => {
       result.push(numberClassName);
       orderClass--;
 
-      const integerRemainder = integerSplitIntoClasses.filter((classInteger, index, arr) => arr.indexOf(classInteger) > i).join(''); // dá erro quando os valores de classInteger são todos iguais. Ex: 111.111 ou 324.324 ou 999.999
+      const integerRemainder = integerSplitIntoClasses.slice(i + 1).join('');
 
       insertSeparatorsAfterWords(numberClassName, integerRemainder);
     }
@@ -143,14 +142,15 @@ const getValueInFull = (inputValue) => {
     result.push(fractionName);
   }
 
-  const resultSanitized = result.filter((res) => res);
-  const valueInFull = resultSanitized
+  const valueInFull = result
+    .filter((res) => res)
     .map((word) => (word === ',' ? ',' : ` ${word}`))
     .join('')
     .trim();
 
-  return valueInFull;
+  return valueInFull || 'ERRO. Não foi possível converter o valor fornecido por extenso.';
 };
+
 // 999999999999999
-const inputValue = 112112;
+const inputValue = 999999999;
 console.log(getValueInFull(inputValue));
