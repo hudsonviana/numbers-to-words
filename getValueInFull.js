@@ -112,11 +112,16 @@ const getValueInFull = (inputValue) => {
     };
 
     const insertClassSeparator = (numberClassName, integerRemainder) => {
-      if (numberClassName && ((numberClassName === 'mil' && integerRemainder > 100 && integerRemainder % 100 !== 0) || (numberClassName !== 'mil' && integerRemainder != 0))) {
+      console.log(integerRemainder);
+      if (
+        numberClassName &&
+        !integerRemainder.startsWith('0000') &&
+        ((numberClassName === 'mil' && integerRemainder > 100 && integerRemainder % 100 !== 0) || (numberClassName !== 'mil' && integerRemainder != 0))
+      ) {
         result.push(',');
       } else if (numberClassName && numberClassName !== 'mil' && integerRemainder == 0) {
         result.push('de');
-      } else if (numberClassName === 'mil' && integerRemainder != 0) {
+      } else if ((integerRemainder.startsWith('0000') && integerRemainder.length !== 3) || (numberClassName === 'mil' && integerRemainder != 0)) {
         result.push('e');
       }
     };
@@ -135,7 +140,7 @@ const getValueInFull = (inputValue) => {
 
       const integerRemainder = integerSplitIntoClasses.slice(i + 1).join('');
 
-      insertClassSeparator(numberClassName, integerRemainder);
+      if (wordsIntegerArray.length) insertClassSeparator(numberClassName, integerRemainder);
     }
 
     result.push(currencyName);
@@ -161,7 +166,7 @@ const getValueInFull = (inputValue) => {
   return valueInFull;
 };
 
-const inputValue = 5000027;
+const inputValue = 40000000234;
 // Retornando: 'quatro milhões, trinta e quatro reais'
 // Esperado:   'quatro milhões e trinta e quatro reais'
 
