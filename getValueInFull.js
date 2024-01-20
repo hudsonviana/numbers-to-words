@@ -16,25 +16,24 @@ const getValueInFull = (inputValue) => {
     return errorValidation.msg;
   }
 
+  const result = [];
+  const stringValue = String(inputValue.toFixed(2));
+  const [integerValue, fractionValue] = stringValue.split('.');
+  const currencyName = integerValue == 1 ? 'real' : 'reais';
+  const fractionName = fractionValue == 1 ? 'centavo' : 'centavos';
+
   const units = ['um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
   const teens = ['onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
   const tens = ['dez', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
   const hundreds = ['cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
-
-  const result = [];
-  const stringValue = String(inputValue.toFixed(2));
-  const parts = stringValue.split('.');
-  const [integerValue, decimalValue] = parts;
-  const currencyName = integerValue == 1 ? 'real' : 'reais';
-  const fractionName = decimalValue == 1 ? 'centavo' : 'centavos';
 
   const insertCharacterBetweenWords = (words, character) => {
     return words.flatMap((word, index) => (index < words.length - 1 ? [word, character] : [word]));
   };
 
   const getWords = (value, arr) => {
-    const indexDeducted = arr === teens ? 11 : 1;
-    return arr[value - indexDeducted];
+    const indexToDeduct = arr === teens ? 11 : 1;
+    return arr[value - indexToDeduct];
   };
 
   const convertNumberToWords = (numArray) => {
@@ -113,7 +112,7 @@ const getValueInFull = (inputValue) => {
       return value != 0 ? classes[orderClass] : null;
     };
 
-    const insertSeparatorsAfterClasses = (numberClassName, integerRemainder) => {
+    const insertSeparatorBetweenClasses = (numberClassName, integerRemainder) => {
       if (numberClassName && ((numberClassName === 'mil' && integerRemainder > 100 && integerRemainder % 100 !== 0) || (numberClassName !== 'mil' && integerRemainder != 0))) {
         result.push(',');
       } else if (numberClassName && numberClassName !== 'mil' && integerRemainder == 0) {
@@ -137,19 +136,19 @@ const getValueInFull = (inputValue) => {
 
       const integerRemainder = integerSplitIntoClasses.slice(i + 1).join('');
 
-      insertSeparatorsAfterClasses(numberClassName, integerRemainder);
+      insertSeparatorBetweenClasses(numberClassName, integerRemainder);
     }
 
     result.push(currencyName);
   }
 
-  // GET FRACTIONAL PART IN FULL
+  // GET FRACTION PART IN FULL
 
-  if (parseInt(decimalValue) > 0) {
+  if (fractionValue > 0) {
     if (integerValue > 0) result.push('e');
-    const charDecimalArray = [...decimalValue];
-    const wordsDecimalArray = convertNumberToWords(charDecimalArray);
-    result.push(...wordsDecimalArray);
+    const charFractionArray = [...fractionValue];
+    const wordsFractionArray = convertNumberToWords(charFractionArray);
+    result.push(...wordsFractionArray);
 
     result.push(fractionName);
   }
@@ -163,7 +162,7 @@ const getValueInFull = (inputValue) => {
   return valueInFull;
 };
 
-const inputValue = 4000034;
+const inputValue = 5000027;
 // Retornando: 'quatro milhões, trinta e quatro reais'
 // Esperado:   'quatro milhões e trinta e quatro reais'
 
