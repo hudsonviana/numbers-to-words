@@ -92,12 +92,11 @@ const getValueInFull = (inputValue) => {
 
   if (integerValue > 0) {
     const splitNumberIntoClasses = (inputNumber) => {
-      const numberString = String(inputNumber);
       const chunks = [];
-      const reversedNumber = numberString.split('').reverse().join('');
+      const reversedNumber = inputNumber.split('').reverse().join('');
       for (let i = 0; i < reversedNumber.length; i += 3) {
-        const group = reversedNumber.slice(i, i + 3);
-        chunks.push(group.split('').reverse().join(''));
+        const chunk = reversedNumber.slice(i, i + 3);
+        chunks.push(chunk.split('').reverse().join(''));
       }
       return chunks.reverse();
     };
@@ -112,7 +111,7 @@ const getValueInFull = (inputValue) => {
       return value != 0 ? classes[orderClass] : null;
     };
 
-    const insertSeparatorBetweenClasses = (numberClassName, integerRemainder) => {
+    const insertClassSeparator = (numberClassName, integerRemainder) => {
       if (numberClassName && ((numberClassName === 'mil' && integerRemainder > 100 && integerRemainder % 100 !== 0) || (numberClassName !== 'mil' && integerRemainder != 0))) {
         result.push(',');
       } else if (numberClassName && numberClassName !== 'mil' && integerRemainder == 0) {
@@ -136,7 +135,7 @@ const getValueInFull = (inputValue) => {
 
       const integerRemainder = integerSplitIntoClasses.slice(i + 1).join('');
 
-      insertSeparatorBetweenClasses(numberClassName, integerRemainder);
+      insertClassSeparator(numberClassName, integerRemainder);
     }
 
     result.push(currencyName);
