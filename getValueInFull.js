@@ -112,11 +112,11 @@ const getValueInFull = (inputValue) => {
     };
 
     const insertClassSeparator = (className, remainder) => {
-      if (remainder > 100 && remainder % 100 !== 0) {
+      if ((remainder > 100 && remainder % 100 !== 0) || (remainder > 1000 && remainder % 1000 !== 0)) {
         result.push(',');
       } else if (className && remainder && (remainder <= 100 || remainder % 100 === 0)) {
         result.push('e');
-      } else if (className && !remainder && className !== 'mil') {
+      } else if (className && className !== 'mil' && !remainder) {
         result.push('de');
       }
     };
@@ -165,11 +165,12 @@ const getValueInFull = (inputValue) => {
   return valueInFull;
 };
 
-const inputValue = 10500002;
+module.exports = getValueInFull;
 
-const convertedNumber = {
-  valor: inputValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-  porExtenso: getValueInFull(inputValue),
-};
-
-console.log(convertedNumber);
+// const inputValue = 1100000001;
+// const resultado = {
+//   numero: inputValue,
+//   valor: inputValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+//   extenso: getValueInFull(inputValue),
+// };
+// console.log(resultado);
