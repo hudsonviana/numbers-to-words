@@ -101,7 +101,7 @@ const getValueInFull = (inputValue) => {
       return chunks.reverse();
     };
 
-    const getNumberClassName = (value, orderClass) => {
+    const getClassName = (value, orderClass) => {
       const classes = {
         2: 'mil',
         3: value == 1 ? 'milhão' : 'milhões',
@@ -111,18 +111,13 @@ const getValueInFull = (inputValue) => {
       return value != 0 ? classes[orderClass] : null;
     };
 
-    const insertClassSeparator = (numberClassName, integerRemainder) => {
-      console.log(integerRemainder);
-      if (
-        numberClassName &&
-        !integerRemainder.startsWith('0000') &&
-        ((numberClassName === 'mil' && integerRemainder > 100 && integerRemainder % 100 !== 0) || (numberClassName !== 'mil' && integerRemainder != 0))
-      ) {
+    const insertClassSeparator = (className, remainder) => {
+      if (remainder > 100 && remainder % 100 !== 0) {
         result.push(',');
-      } else if (numberClassName && numberClassName !== 'mil' && integerRemainder == 0) {
-        result.push('de');
-      } else if ((integerRemainder.startsWith('0000') && integerRemainder.length !== 3) || (numberClassName === 'mil' && integerRemainder != 0)) {
+      } else if (className && remainder && (remainder <= 100 || remainder % 100 === 0)) {
         result.push('e');
+      } else if (className && !remainder && className !== 'mil') {
+        result.push('de');
       }
     };
 
@@ -134,13 +129,17 @@ const getValueInFull = (inputValue) => {
       const wordsIntegerArray = convertNumberToWords(charIntegerArray);
       result.push(...wordsIntegerArray);
 
-      const numberClassName = getNumberClassName(integerSplitIntoClasses[i], orderClass);
-      result.push(numberClassName);
+      const className = getClassName(integerSplitIntoClasses[i], orderClass);
+      result.push(className);
       orderClass--;
 
-      const integerRemainder = integerSplitIntoClasses.slice(i + 1).join('');
-
-      if (wordsIntegerArray.length) insertClassSeparator(numberClassName, integerRemainder);
+      if (wordsIntegerArray.length) {
+        const remainder = integerSplitIntoClasses
+          .slice(i + 1)
+          .filter((value) => value !== '000')
+          .join('');
+        insertClassSeparator(className, remainder);
+      }
     }
 
     result.push(currencyName);
@@ -166,9 +165,7 @@ const getValueInFull = (inputValue) => {
   return valueInFull;
 };
 
-const inputValue = 40000000234;
-// Retornando: 'quatro milhões, trinta e quatro reais'
-// Esperado:   'quatro milhões e trinta e quatro reais'
+const inputValue = 10500002;
 
 const convertedNumber = {
   valor: inputValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
