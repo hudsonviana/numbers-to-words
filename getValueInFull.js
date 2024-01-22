@@ -152,9 +152,8 @@ const getValueInFull = (inputValue) => {
 
   const valueInFull = result
     .filter(Boolean)
-    .map((word) => (word === ',' ? ',' : ` ${word}`))
-    .join('')
-    .trim();
+    .join(' ')
+    .replace(/\s*,\s*/g, ', ');
 
   return valueInFull;
 };

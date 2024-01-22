@@ -42,4 +42,4 @@ const testeValorPorExtenso = async (minimo, maximo = null) => {
   console.log(resultado[0]);
 };
 
-testeValorPorExtenso(1000007150000);
+testeValorPorExtenso(1500000030);
