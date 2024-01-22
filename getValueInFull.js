@@ -92,13 +92,7 @@ const getValueInFull = (inputValue) => {
 
   if (integerValue > 0) {
     const splitNumberIntoClasses = (inputNumber) => {
-      const chunks = [];
-      const reversedNumber = inputNumber.split('').reverse().join('');
-      for (let i = 0; i < reversedNumber.length; i += 3) {
-        const chunk = reversedNumber.slice(i, i + 3);
-        chunks.push(chunk.split('').reverse().join(''));
-      }
-      return chunks.reverse();
+      return inputNumber.match(/.{1,3}(?=(.{3})*$)/g);
     };
 
     const getClassName = (value, orderClass) => {
@@ -166,11 +160,3 @@ const getValueInFull = (inputValue) => {
 };
 
 module.exports = getValueInFull;
-
-// const inputValue = 1100000001;
-// const resultado = {
-//   numero: inputValue,
-//   valor: inputValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-//   extenso: getValueInFull(inputValue),
-// };
-// console.log(resultado);
