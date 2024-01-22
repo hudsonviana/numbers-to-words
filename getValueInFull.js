@@ -83,7 +83,7 @@ const getValueInFull = (inputValue) => {
       words.push(getWords(lastDigit, units));
     }
 
-    const wordsSanitized = words.filter((word) => word);
+    const wordsSanitized = words.filter(Boolean);
     const resultWords = insertCharacterBetweenWords(wordsSanitized, 'e');
     return resultWords;
   };
@@ -151,7 +151,7 @@ const getValueInFull = (inputValue) => {
   }
 
   const valueInFull = result
-    .filter((res) => res)
+    .filter(Boolean)
     .map((word) => (word === ',' ? ',' : ` ${word}`))
     .join('')
     .trim();
